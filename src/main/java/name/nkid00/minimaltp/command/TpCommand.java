@@ -5,7 +5,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import name.nkid00.minimaltp.MinimalTp;
-import name.nkid00.minimaltp.TpRequest;
+import name.nkid00.minimaltp.model.TpRequest;
 import name.nkid00.minimaltp.helper.TpHelper;
 
 import net.minecraft.command.CommandRegistryAccess;
@@ -19,7 +19,8 @@ import static net.minecraft.server.command.CommandManager.literal;
 import net.minecraft.text.Text;
 
 public class TpCommand {
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess,
+    public static void register(CommandDispatcher<ServerCommandSource> dispatcher,
+            CommandRegistryAccess registryAccess,
             CommandManager.RegistrationEnvironment environment) {
         dispatcher.register(
                 literal("/tp").then(
@@ -51,12 +52,12 @@ public class TpCommand {
         } else {
             MinimalTp.TpRequests.put(destination.getUuid(), new TpRequest(source.getPlayerOrThrow(), destination));
 
-            var feedback = Text.literal("")
+            var feedback = Text.empty()
                     .append(target.getDisplayName().copy())
-                    .append(Text.literal(String.format("请求传送至你的位置,可以在%d秒内选择 ",
-                            MinimalTp.options.requestExpirationInterval)))
+                    .append(String.format("请求传送至你的位置,可以在%d秒内选择 ",
+                            MinimalTp.options.requestExpirationInterval))
                     .append(Text.literal("接受(//tpa)").setStyle(MinimalTp.CLICK_TPA_CMD_STYLE))
-                    .append(Text.literal(" 或 "))
+                    .append(" 或 ")
                     .append(Text.literal("拒绝(//tpr)").setStyle(MinimalTp.CLICK_TPR_CMD_STYLE))
                     .setStyle(MinimalTp.MSG_STYLE);
             destination.getCommandSource().sendFeedback(feedback, false);

@@ -10,6 +10,7 @@ import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -31,14 +32,15 @@ public class TprCommand {
             if (request.isValid()) {
                 var destMsg = Text.literal("已拒绝")
                         .append(target.getDisplayName().copy())
-                        .append(Text.literal("的传送请求"))
+                        .append("的传送请求")
                         .setStyle(MinimalTp.MSG_STYLE);
                 source.sendFeedback(destMsg, false);
                 var targetMsg = Text.literal("向")
                         .append(destination.getDisplayName().copy())
-                        .append(Text.literal("的传送请求被拒绝"))
+                        .append("的传送请求被拒绝")
                         .setStyle(MinimalTp.REFUSE_STYLE);
-                request.target.getCommandSource().sendError(targetMsg);
+                // refer to ServerCommandSource method sendError(Text message)
+                request.target.sendMessage(targetMsg.formatted(Formatting.RED));
                 return 1;
             }
         }

@@ -1,5 +1,7 @@
 package name.nkid00.minimaltp;
 
+import name.nkid00.minimaltp.model.TpRequest;
+import name.nkid00.minimaltp.model.Waypoint;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -12,10 +14,11 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
-import java.util.HashMap;
 import java.util.Timer;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
+import net.minecraft.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,11 +26,7 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import name.nkid00.minimaltp.command.HelpCommand;
-import name.nkid00.minimaltp.command.ReloadOptionsCommand;
-import name.nkid00.minimaltp.command.TpCommand;
-import name.nkid00.minimaltp.command.TpaCommand;
-import name.nkid00.minimaltp.command.TprCommand;
+import name.nkid00.minimaltp.command.*;
 
 public class MinimalTp implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger("MinimalTp");
@@ -54,7 +53,9 @@ public class MinimalTp implements ModInitializer {
 
     public static Options options;
     public static Data data;
-    public static HashMap<UUID, TpRequest> TpRequests = new HashMap<>();
+    public static ConcurrentHashMap<UUID, TpRequest> TpRequests = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String, Waypoint> waypoints = new ConcurrentHashMap<>();
+    public static volatile Pair<String, Waypoint> latestWaypoint;
 
     @Override
     public void onInitialize() {
@@ -67,9 +68,7 @@ public class MinimalTp implements ModInitializer {
         // data (dynamic and stored respectively for each world)
         Data.file = loader.getConfigDir().resolve("minimaltp/data.json").toFile();
         Data.load();
-        ServerLifecycleEvents.SERVER_STOPPED.register((server) -> {
-            Data.save();
-        });
+        ServerLifecycleEvents.SERVER_STOPPED.register((server) -> Data.save());
 
         // commands
         if (POTENTIAL_COMMAND_CONFLICT) {
@@ -80,6 +79,7 @@ public class MinimalTp implements ModInitializer {
             CommandRegistrationCallback.EVENT.register(TpCommand::register);
             CommandRegistrationCallback.EVENT.register(TpaCommand::register);
             CommandRegistrationCallback.EVENT.register(TprCommand::register);
+            CommandRegistrationCallback.EVENT.register(WaypointCommand::register);
         }
 
         // banners

@@ -54,7 +54,7 @@ public class TpHelper {
             }
             try {
                 TpHelper.teleportImmediately(target, destination);
-            } catch (CommandSyntaxException e) {
+            } catch (CommandSyntaxException ignored) {
             }
         }
     }

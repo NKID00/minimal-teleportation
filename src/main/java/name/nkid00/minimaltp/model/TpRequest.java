@@ -1,5 +1,6 @@
-package name.nkid00.minimaltp;
+package name.nkid00.minimaltp.model;
 
+import name.nkid00.minimaltp.MinimalTp;
 import name.nkid00.minimaltp.helper.TpHelper;
 
 import net.minecraft.server.network.ServerPlayerEntity;
